@@ -1,20 +1,19 @@
-const { promises:fs } = require('fs');
+const fs = require('fs');
 
 class Container {
-    constructor(name) {
-        this.name = `./${name}.txt`
+    constructor(path) {
+        this.name = path
     }
 
     async save(objet) {
         if (fileExists(this.name)) {
             try {
-                let file = await fs.promises.readFile(this.name, 'utf-8')
-                let products = JSON.parse(file)
-                let lastItem = products[products.length - 1].id + 1;
-                objet.id = lastItem;
+                let products = await this.getAll()
+                let newLastItem = products[products.length - 1].id + 1;
+                objet.id = newLastItem;
                 products.push(objet)
                 await fs.promises.writeFile(this.name, JSON.stringify(products))
-                console.log(objet.id);
+                return newLastItem;
             } catch (error) {
                 throw new Error('Error al guardar')
             }
@@ -25,7 +24,7 @@ class Container {
             newProduct.push(objet)
             try {
                 await fs.promises.writeFile(this.name, JSON.stringify(newProduct))
-                console.log(objet.id);
+                return objet.id
 
             } catch (error) {
                 throw new Error('Error al guardar')
@@ -35,14 +34,9 @@ class Container {
 
     async getById(id) {
         if (fileExists(this.name)) {
-            try {
-                let file = await fs.promises.readFile(this.name, 'utf-8');
-                let products = JSON.parse(file);
-                let found = products.find(product => product.id === id);
-                console.log(found);
-            } catch (error) {
-                throw new Error('No se encuentra el ID indicado')
-            }
+            const products = await this.getAll();
+            let foundById = products.find(product => product.id == id);
+            return foundById;
         } else {
             console.log('No existe el arvhico que esta buscando');
         }
@@ -51,11 +45,10 @@ class Container {
     async getAll() {
         if (fileExists(this.name)) {
             try {
-                let file = await fs.promises.readFile(this.name, 'utf-8');
-                let products = JSON.parse(file);
-                console.log(products);
+                let products = await fs.promises.readFile(this.name, 'utf-8');
+                return JSON.parse(products);
             } catch (error) {
-                throw new Error('Error al leer el archivo')
+                return [];
             }
         } else {
             console.log('No existe el arvhico que esta buscando');
@@ -64,15 +57,10 @@ class Container {
 
     async deleteById(id) {
         if (fileExists(this.name)) {
-            try {
-                let file = await fs.promises.readFile(this.name, 'utf-8');
-                let products = JSON.parse(file);
-                let productDeleted = products.findIndex(product => product.id === id);
-                products.splice(productDeleted, 1);
-                await fs.promises.writeFile(this.name,  JSON.stringify(products));
-            } catch (error) {
-                throw new Error('No se encuentra el ID indicado')
-            }
+            let products = await this.getAll()
+            let productToDelete = products.findIndex(product => product.id === id);
+            products.splice(productToDelete, 1);
+            await fs.promises.writeFile(this.name,  JSON.stringify(products));
         } else {
             console.log('No existe el arvhico que esta buscando');
         }
@@ -80,11 +68,7 @@ class Container {
 
     async deleteAll() {
         if (fileExists(this.name)) {
-            try {
-                await fs.promises.unlink(this.name);
-            } catch (error) {
-                throw new Error('Error al borrar el archivo')
-            }
+            await fs.promises.unlink(this.name);
         } else {
             console.log('No existe el arvhico que esta buscando');
         }
@@ -99,12 +83,6 @@ const fileExists = (path) => {
     } catch (err) {
         return false;
     }
-}
-
-const readFile = async (route) => {   
-        let file = await fs.promises.readFile(route, 'utf-8');
-        return JSON.parse(file);
-
 }
 
 
