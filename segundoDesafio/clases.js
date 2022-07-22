@@ -1,4 +1,4 @@
-const fs = require('fs');
+const { promises:fs } = require('fs');
 
 class Container {
     constructor(name) {
