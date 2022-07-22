@@ -108,4 +108,4 @@ const readFile = async (route) => {
 }
 
 
-exports.Container = Container;
+module.exports = Container;

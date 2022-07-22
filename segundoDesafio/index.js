@@ -1,11 +1,11 @@
-const container = require('./clases');
+const Container = require('./clases');
 // Ejecucion del codigo
 
-const products = new container.Container('productos')
+const products = new Container('productos')
 
 
 // Agregamos un producto nuevo y se crea el archivo
-// products.save({title: 'Escuadra',price: 123.45, thumbnail: 'https://cdn3.iconfinder.com/data/icons/education-209/64/ruler-triangle-stationary-school-256.png'});
+products.save({title: 'Escuadra',price: 123.45, thumbnail: 'https://cdn3.iconfinder.com/data/icons/education-209/64/ruler-triangle-stationary-school-256.png'});
 
 // sumamos varios productos al arvhico ya creado
 // Producto 2
