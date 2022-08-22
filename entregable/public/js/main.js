@@ -5,7 +5,6 @@ const socket = io.connect();
 const formAgregarProducto = document.getElementById('formAgregarProducto')
 formAgregarProducto.addEventListener('submit', e => {
     e.preventDefault()
-    //Armar objeto producto y emitir mensaje a evento update
     const productos = {
             title: document.getElementById('nombre').value,
             price: document.getElementById('precio').value,
