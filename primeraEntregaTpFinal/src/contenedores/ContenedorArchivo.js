@@ -1,4 +1,4 @@
-const { promises : fs } = require('fs')
+const { promises: fs } = require('fs')
 
 class ContenedorArchivo {
 
@@ -7,20 +7,24 @@ class ContenedorArchivo {
     }
 
     async save(objet) {
-        if (fileExists(this.ruta)) {
+        let productLength = await this.getAll()
+        console.log(productLength);
+        if (productLength.length > 0) {
             try {
                 let products = await this.getAll()
                 let newLastItem = products[products.length - 1].id + 1;
                 objet.id = newLastItem;
+                objet.timestamp = Date.now()
                 products.push(objet)
                 await fs.writeFile(this.ruta, JSON.stringify(products))
-                return newLastItem;
+                return objet.id;
             } catch (error) {
                 throw new Error('Error al guardar')
             }
 
         } else {
             objet.id = 1;
+            objet.timestamp = Date.now();
             let newProduct = [];
             newProduct.push(objet)
             try {
@@ -34,13 +38,9 @@ class ContenedorArchivo {
     }
 
     async getById(id) {
-        if (fileExists(this.ruta)) {
-            const products = await this.getAll();
-            let foundById = products.find(product => product.id == id);
-            return foundById;
-        } else {
-            console.log('No existe el arvhico que esta buscando');
-        }
+        const products = await this.getAll();
+        let foundById = products.find(product => product.id == id);
+        return foundById;
     }
 
     async getAll() {
@@ -53,34 +53,27 @@ class ContenedorArchivo {
     }
 
     async deleteById(id) {
-        if (fileExists(this.ruta)) {
-            let products = await this.getAll()
-            let productToDelete = products.findIndex(product => product.id === id);
-            products.splice(productToDelete, 1);
-            await fs.writeFile(this.ruta, JSON.stringify(products));
-        } else {
-            console.log('No existe el arvhico que esta buscando');
-        }
+        let products = await this.getAll();
+        let productToDelete = products.findIndex(product => product.id === id);
+        products.splice(productToDelete, 1);
+        await fs.writeFile(this.ruta, JSON.stringify(products));
     }
 
     async deleteAll() {
-        if (fileExists(this.ruta)) {
-            await fs.unlink(this.ruta);
-        } else {
-            console.log('No existe el arvhico que esta buscando');
-        }
+        await fs.unlink(this.ruta);
+    }
+
+    async actualizar(elem, id) {
+        const productos = await this.getAll();
+        let productToUpdate = productos.findIndex(p => p.id === id);
+
+        productos[productToUpdate].title = elem.title;
+        productos[productToUpdate].price = elem.price;
+        productos[productToUpdate].thumbnail = elem.thumbnail;
+        productos[productToUpdate].timestamp = Date.now();
+
+        await fs.writeFile(this.ruta, JSON.stringify(productos))
     }
 }
-
-
-// Helpers
-const fileExists = (path) => {
-    try {
-        return fs.statSync(path).isFile();
-    } catch (err) {
-        return false;
-    }
-}
-
 
 module.exports = ContenedorArchivo
