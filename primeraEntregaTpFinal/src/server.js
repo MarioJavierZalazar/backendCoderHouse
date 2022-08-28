@@ -68,20 +68,55 @@ productosRouter.delete('/:id', soloAdmins ,async (req, res) => {
 const carritosRouter = new Router()
 
 
-carritosRouter.get('/', async (req, res) => {
-    res.send(await carritosApi.getAll());
+carritosRouter.get('/:id/productos', async (req, res) => {
+    const { id } = req.params;
+    const carrito = await carritosApi.getById(parseInt(id));
+    res.send(carrito);
 })
+
+carritosRouter.post('/:id/productos' , async (req, res) => {
+    const { id } = req.params;
+    let producto = req.body.id;
+    console.log(id);
+    const carrito = await carritosApi.getById(parseInt(id));
+    const productos = await productosApi.getById(parseInt(producto));
+    if (carrito.productos){
+        carrito.productos.push(productos)
+    } else {
+        carrito.productos = [productos];
+    }
+    console.log(carrito);
+    await carritosApi.actualizar(carrito, parseInt(id))
+    res.json(carrito);
+})
+
 carritosRouter.post('/' , async (req, res) => {
     let product = req.body
+    product.productos = [];
     let value = await carritosApi.save(product);
-    console.log(value);
-    res.json({id: value});
+    res.json(value);
 })
 
 carritosRouter.delete('/:id', soloAdmins ,async (req, res) => {
     const { id } = req.params;
     await carritosApi.deleteById(parseInt(id));
-    res.send(await carritosApi.getAll());
+})
+carritosRouter.delete('/:id/productos/:idProd', soloAdmins ,async (req, res) => {
+    const { id, idProd } = req.params;
+    const carrito = await carritosApi.getById(parseInt(id));
+    let productoABorrar = carrito.productos.findIndex(product => product.id == idProd);
+    carrito.productos.splice(productoABorrar, 1);
+    await carritosApi.actualizar(carrito, parseInt(id))
+})
+
+carritosRouter.get('/', async (req, res) => {
+    const listaCarrito = await carritosApi.getAll();
+    const lista = [];
+    for (const item of listaCarrito) {
+        lista.push(item.id)
+    }
+    console.log(lista);
+    res.json(lista);
 })
 
 //--------------------------------------------

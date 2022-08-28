@@ -8,7 +8,6 @@ class ContenedorArchivo {
 
     async save(objet) {
         let productLength = await this.getAll()
-        console.log(productLength);
         if (productLength.length > 0) {
             try {
                 let products = await this.getAll()
@@ -64,15 +63,11 @@ class ContenedorArchivo {
     }
 
     async actualizar(elem, id) {
-        const productos = await this.getAll();
-        let productToUpdate = productos.findIndex(p => p.id === id);
+        const elemt = await this.getAll();
+        let productToUpdate = elemt.findIndex(p => p.id === id);
+        elemt[productToUpdate] = elem
 
-        productos[productToUpdate].title = elem.title;
-        productos[productToUpdate].price = elem.price;
-        productos[productToUpdate].thumbnail = elem.thumbnail;
-        productos[productToUpdate].timestamp = Date.now();
-
-        await fs.writeFile(this.ruta, JSON.stringify(productos))
+        await fs.writeFile(this.ruta, JSON.stringify(elemt))
     }
 }
 
