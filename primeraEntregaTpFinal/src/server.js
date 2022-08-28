@@ -71,7 +71,7 @@ const carritosRouter = new Router()
 carritosRouter.get('/:id/productos', async (req, res) => {
     const { id } = req.params;
     const carrito = await carritosApi.getById(parseInt(id));
-    res.send(carrito);
+    res.send(carrito.productos);
 })
 
 carritosRouter.post('/:id/productos' , async (req, res) => {
